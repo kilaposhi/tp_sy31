@@ -42,7 +42,7 @@ if __name__=="__main__":
     filetered_values = medfilt(values, 71)
     p3 = plt.hist(filetered_values, density = True)
     
-    #plt.show()
+    plt.show()
     
     
     alpha = 0.5/mean
