@@ -25,14 +25,6 @@ def load_bag():
 
 if __name__=="__main__":
     times, values = load_bag()
-<<<<<<< Updated upstream
-    print(times, values)
-    plt.hist(values)
-
-    filetered_values =medfilt(values, 100)
-    plt.hist(filetered_values)
-=======
-    #plt.hist(values)
     
     mean = np.mean(values)
     sigma = np.std(values)
@@ -42,18 +34,19 @@ if __name__=="__main__":
     p1 = plt.plot(x, norm.pdf(x, mean, sigma))
     p2 = plt.hist(values, density = True)
     
-    
-    
-    #plt.plot(x, norm.pdf(x))
-    plt.show()
+    #plt.show()
 
     
     print("La moyenne est de ", mean, "est l'écart type est de ", sigma)
     
+    filetered_values = medfilt(values, 71)
+    p3 = plt.hist(filetered_values, density = True)
+    
+    #plt.show()
     
     
-    #print(times, values)
->>>>>>> Stashed changes
-
+    alpha = 0.5/mean
+    
+    print (alpha)
     # TODO: Analysis
     
