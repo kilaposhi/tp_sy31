@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Mar 30 16:03:19 2023
+
+@author: ubuntu
+"""
+
 #! /usr/bin/env python3
 
 from us_static_analyzer import load_bag
@@ -7,7 +15,11 @@ import matplotlib.pyplot as plt
 from scipy.signal import medfilt
 from scipy.stats import norm
 
+
+
 if __name__=="__main__":
+    
+    
     times, values = load_bag()
 
     # Split in steps based on begin/end times
@@ -39,19 +51,42 @@ if __name__=="__main__":
 
     step_times = [times[(times>tbeg) & (times<tend)] for dtheor, tbeg, tend in steps]
     step_values = [values[(times>tbeg) & (times<tend)] for dtheor, tbeg, tend in steps]
-    step_distances = [dtheor for dtheor, tbeg, tend in steps]
+    step_distances = [np.full(len(values), d)
+                        for (d, _, _), values in zip(steps, step_values)]
+    x = np.hstack(step_distances)
+    
 
 
     # TODO: Analysis
-    plt.plot(values)
+    #p1 = plt.plot(values)
+    
+    
+    
     #plt.show()
     
-    x = np.hstack([
-                np.full(len(values), d)
-                for d, values in zip(step_distances, step_values)
-            ])
-    print(x)
-    #print(step_times)
-    #print(step_values)
-
+    p2 = plt.plot(x)
+    #p3 = plt.plot(step_values)
     
+    plt.show()
+    y = np.hstack(step_values)
+    
+
+    x_mean = np.mean(x)
+    y_mean = np.mean(y)
+    a_hat = np.sum((x-x_mean)*(y-y_mean)) / np.sum((x-x_mean)**2)
+    b_hat = y_mean - a_hat*x_mean
+    print("Droite des moindres carrés (y = a*x+b) : a =", a_hat, "; b =", b_hat)
+    
+    _, ax = plt.subplots(1, 1)
+    ax.scatter(x, y)
+    ax.set_xlim((0, None))
+    ax.set_ylim((0, None))
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    x_max = ax.get_xlim()[1]
+    ax.plot([0, x_max], [b_hat, a_hat*x_max+b_hat], color='red')
+    plt.show()
+    
+
+
+
