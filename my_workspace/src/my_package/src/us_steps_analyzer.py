@@ -39,7 +39,19 @@ if __name__=="__main__":
 
     step_times = [times[(times>tbeg) & (times<tend)] for dtheor, tbeg, tend in steps]
     step_values = [values[(times>tbeg) & (times<tend)] for dtheor, tbeg, tend in steps]
+    step_distances = [dtheor for dtheor, tbeg, tend in steps]
 
 
     # TODO: Analysis
+    plt.plot(values)
+    #plt.show()
+    
+    x = np.hstack([
+                np.full(len(values), d)
+                for d, values in zip(step_distances, step_values)
+            ])
+    print(x)
+    #print(step_times)
+    #print(step_values)
+
     
