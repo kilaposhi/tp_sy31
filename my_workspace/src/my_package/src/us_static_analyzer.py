@@ -26,6 +26,10 @@ def load_bag():
 if __name__=="__main__":
     times, values = load_bag()
     print(times, values)
+    plt.hist(values)
+
+    medfilt(values)
+    plt.hist(values)
 
     # TODO: Analysis
     
