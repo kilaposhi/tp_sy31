@@ -28,8 +28,8 @@ if __name__=="__main__":
     print(times, values)
     plt.hist(values)
 
-    medfilt(values)
-    plt.hist(values)
+    filetered_values =medfilt(values, 100)
+    plt.hist(filetered_values)
 
     # TODO: Analysis
     
