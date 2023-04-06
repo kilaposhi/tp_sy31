@@ -9,6 +9,7 @@ Created on Thu Mar 30 16:03:19 2023
 #! /usr/bin/env python3
 
 from us_static_analyzer import load_bag
+from moindre_carre import moindre_carre, plot_moindre_carre
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,10 +18,10 @@ from scipy.stats import norm
 
 
 
+
 if __name__=="__main__":
     
     
-    times, values = load_bag()
 
     # Split in steps based on begin/end times
     steps = [
@@ -48,20 +49,30 @@ if __name__=="__main__":
         (1.05, 306.0, 319.0),
         (1.10, 320.0, 329.0),
     ]
+    
+    measured_times, values = load_bag() # Retrieve measured times and values 
 
-    step_times = [times[(times>tbeg) & (times<tend)] for dtheor, tbeg, tend in steps]
-    step_values = [values[(times>tbeg) & (times<tend)] for dtheor, tbeg, tend in steps]
+    # Keeping only each steps measures     
+    step_times = [measured_times[(measured_times>tbeg) & (measured_times<tend)] for dtheor, tbeg, tend in steps]
+    step_values = [values[(measured_times>tbeg) & (measured_times<tend)] for dtheor, tbeg, tend in steps]
+    # for (theoric_length, time_beg, time_end) in steps :   
+    # is_step_times = [(measured_times>time_beg)& (measured_times<time_end) for theoric_length, time_beg, time_end in steps] #[False  True  True ... False False False] Bool array
+    # steps_times2=[measured_times[is_step_times] for theoric_length, time_beg, time_end in steps]
+    # steps_values2=[values[is_step_times] for theoric_length, time_beg, time_end in steps]
+    
+
+        # steps_times2= np.append(steps_times2,measured_times[is_step_times]) 
+        # steps_values2= np.append(steps_values2, measured_times[is_step_times])
+
+    # print(step_times== steps_times2)
+    # print(steps_values2==step_values)
+    # print(steps_values2)
+
     step_distances = [np.full(len(values), d)
                         for (d, _, _), values in zip(steps, step_values)]
     x = np.hstack(step_distances)
     
 
-
-    # TODO: Analysis
-    #p1 = plt.plot(values)
-    
-    
-    
     #plt.show()
     
     p2 = plt.plot(x)
@@ -71,20 +82,10 @@ if __name__=="__main__":
     y = np.hstack(step_values)
     
 
-    x_mean = np.mean(x)
-    y_mean = np.mean(y)
-    a_hat = np.sum((x-x_mean)*(y-y_mean)) / np.sum((x-x_mean)**2)
-    b_hat = y_mean - a_hat*x_mean
-    print("Droite des moindres carrés (y = a*x+b) : a =", a_hat, "; b =", b_hat)
-    
-    _, ax = plt.subplots(1, 1)
-    ax.scatter(x, y)
-    ax.set_xlim((0, None))
-    ax.set_ylim((0, None))
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    x_max = ax.get_xlim()[1]
-    ax.plot([0, x_max], [b_hat, a_hat*x_max+b_hat], color='red')
+    a_hat, b_hat = moindre_carre(x,y)
+
+    plot_moindre_carre(a_hat, b_hat, x, y)
+
     plt.show()
     
 
