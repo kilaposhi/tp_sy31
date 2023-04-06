@@ -14,12 +14,13 @@ def plot_moindre_carre(slope, intercept, x, y):
     x_max = ax.get_xlim()[1]
     ax.plot([0, x_max], [intercept, slope*x_max+intercept], color='red')
 
-def moindre_carre(x,y):
+def moindre_carre(x ,y):
     """Calcul les paramètres de la droite des moindres carrés, 
     alpha et beta
     Args:
         x (np.array): X-coordinates of points
         y (np.array): Y-coordinates of points
+    Return: slope, intercept
     """
     x_mean = np.mean(x)
     y_mean = np.mean(y)
