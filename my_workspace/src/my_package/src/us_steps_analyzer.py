@@ -1,11 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Mar 30 16:03:19 2023
-
-@author: ubuntu
-"""
-
 #! /usr/bin/env python3
 
 from us_static_analyzer import load_bag
@@ -16,7 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.signal import medfilt
 from scipy.stats import norm
 
-
+# SHELL COMMAND : python3 us_steps_analyzer.py ~/tp_sy31/bag/us_steps.bag
 
 
 if __name__=="__main__":
@@ -25,7 +17,7 @@ if __name__=="__main__":
 
     # Split in steps based on begin/end times
     steps = [
-        #( cm,  tbeg,  tend)
+        #(  m,  tbeg,  tend)
         (0.05,   0.0,  17.0),
         (0.10,  20.5,  32.0),
         (0.15,  34.0,  49.5),
@@ -53,7 +45,7 @@ if __name__=="__main__":
     measured_times, values = load_bag() # Retrieve measured times and values 
 
     # Keeping only each steps measures     
-    step_times = [measured_times[(measured_times>tbeg) & (measured_times<tend)] for dtheor, tbeg, tend in steps]
+    step_times = [measured_times[(measured_times>tbeg) & (measured_times<tend)] for _, tbeg, tend in steps]
     step_values = [values[(measured_times>tbeg) & (measured_times<tend)] for dtheor, tbeg, tend in steps]
     # for (theoric_length, time_beg, time_end) in steps :   
     # is_step_times = [(measured_times>time_beg)& (measured_times<time_end) for theoric_length, time_beg, time_end in steps] #[False  True  True ... False False False] Bool array
@@ -71,23 +63,14 @@ if __name__=="__main__":
     step_distances = [np.full(len(values), d)
                         for (d, _, _), values in zip(steps, step_values)]
     x = np.hstack(step_distances)
-    
-
-    #plt.show()
-    
-    p2 = plt.plot(x)
-    #p3 = plt.plot(step_values)
-    
-    plt.show()
     y = np.hstack(step_values)
     
 
-    a_hat, b_hat = moindre_carre(x,y)
+    estim_slope, estim_intercept = moindre_carre(x,y)
 
-    plot_moindre_carre(a_hat, b_hat, x, y)
+    plot_moindre_carre(estim_slope, estim_intercept, x, y, x_label="Distance (m)", y_label="temps (ms)")
 
-    plt.show()
-    
+    plt.show() 
 
 
 
