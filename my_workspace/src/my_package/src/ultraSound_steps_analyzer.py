@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-from us_static_analyzer import load_bag
+from my_workspace.src.my_package.src.ultraSound_static_analyzer import load_bag
 from moindre_carre import moindre_carre, plot_moindre_carre
 
 import numpy as np
