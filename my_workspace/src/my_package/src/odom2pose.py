@@ -30,6 +30,7 @@ class Odom2PoseNode:
         self.WHEEL_RADIUS = 0.033
         self.WHEEL_SEPARATION = 0.160
         self.MAG_OFFSET = np.pi/2.0-0.07
+        self.ENTRE_AXE = 0.080
 
         # Variables
         self.x_odom, self.y_odom, self.O_odom = 0, 0, 0
@@ -62,8 +63,17 @@ class Odom2PoseNode:
         self.prev_left_encoder = sensor_state.left_encoder
 
         # TODO: Compute the linear and angular velocity (self.v and w)
+        right_speed = d_right_encoder/0.05 *(2*np.pi/self.ENCODER_RESOLUTION)
+        left_speed =  d_left_encoder/0.05 *(2*3.14/4096)
+
+        self.v = self.WHEEL_RADIUS*(right_speed+left_speed)/2
+        self.w = self.WHEEL_RADIUS*(right_speed-left_speed)/2*self.ENTRE_AXE
 
         # TODO: Update x_odom, y_odom and O_odom accordingly
+
+        x_odom += np.cos(O_odom)*self.v*cos(O_odom)-np.sin(O_odom)*self.v*sin(O_odom)
+        y_odom += np.sin(O_odom)*self.v*cos(O_odom)+np.cos(O_odom)*self.v*sin(O_odom)
+        O_odom += self.w
 
         msg = coordinates_to_message(self.x_odom, self.y_odom, self.O_odom, sensor_state.header.stamp)
         self.pub_enco.publish(msg)

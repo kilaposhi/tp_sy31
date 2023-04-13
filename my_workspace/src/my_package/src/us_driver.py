@@ -3,6 +3,7 @@
 import numpy as np
 import rospy
 from std_msgs.msg import Int32, Float32
+from moindre_carre import moindre_carre
 
 class MyExampleNode:
     def __init__(self):
@@ -16,7 +17,7 @@ class MyExampleNode:
         msg_dist = Float32()
 
         # TODO
-
+        a_hat, b_hat = moindre_carre(msg_us.data)
         self.publisher.publish(msg_dist)
 
 if __name__ == "__main__":

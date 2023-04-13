@@ -68,7 +68,7 @@ if __name__=="__main__":
     x = np.hstack(step_values) # x vaut les distances réelles entre le capteur et la cible (pas en centimètre mais en ms entre le temps de départ et d'arrivée du signal)
 
 
-    estim_slope, estim_intercept = moindre_carre(x,y)
+    estim_slope, estim_intercept = moindre_carre(x, y)
 
     e_y = y-estim_slope*x+estim_intercept
     
