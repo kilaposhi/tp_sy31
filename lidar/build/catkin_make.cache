@@ -1,0 +1,2 @@
+lidar
+-DCATKIN_DEVEL_PREFIX=/home/ubuntu/tp_sy31/lidar/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/tp_sy31/lidar/install -G Unix Makefiles
