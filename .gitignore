@@ -1,2 +1,3 @@
-lidar/devel/
-lidar/build/
+./lidar/devel/
+./lidar/build/
+./.idea/
