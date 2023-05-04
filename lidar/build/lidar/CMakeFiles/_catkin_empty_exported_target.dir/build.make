@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ubuntu/tp_sy31/lidar/src
+CMAKE_SOURCE_DIR = /home/ubuntu/SY31/tp_sy31/lidar/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ubuntu/tp_sy31/lidar/build
+CMAKE_BINARY_DIR = /home/ubuntu/SY31/tp_sy31/lidar/build
 
 # Utility rule file for _catkin_empty_exported_target.
 
@@ -63,10 +63,10 @@ lidar/CMakeFiles/_catkin_empty_exported_target.dir/build: _catkin_empty_exported
 .PHONY : lidar/CMakeFiles/_catkin_empty_exported_target.dir/build
 
 lidar/CMakeFiles/_catkin_empty_exported_target.dir/clean:
-	cd /home/ubuntu/tp_sy31/lidar/build/lidar && $(CMAKE_COMMAND) -P CMakeFiles/_catkin_empty_exported_target.dir/cmake_clean.cmake
+	cd /home/ubuntu/SY31/tp_sy31/lidar/build/lidar && $(CMAKE_COMMAND) -P CMakeFiles/_catkin_empty_exported_target.dir/cmake_clean.cmake
 .PHONY : lidar/CMakeFiles/_catkin_empty_exported_target.dir/clean
 
 lidar/CMakeFiles/_catkin_empty_exported_target.dir/depend:
-	cd /home/ubuntu/tp_sy31/lidar/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/tp_sy31/lidar/src /home/ubuntu/tp_sy31/lidar/src/lidar /home/ubuntu/tp_sy31/lidar/build /home/ubuntu/tp_sy31/lidar/build/lidar /home/ubuntu/tp_sy31/lidar/build/lidar/CMakeFiles/_catkin_empty_exported_target.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ubuntu/SY31/tp_sy31/lidar/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ubuntu/SY31/tp_sy31/lidar/src /home/ubuntu/SY31/tp_sy31/lidar/src/lidar /home/ubuntu/SY31/tp_sy31/lidar/build /home/ubuntu/SY31/tp_sy31/lidar/build/lidar /home/ubuntu/SY31/tp_sy31/lidar/build/lidar/CMakeFiles/_catkin_empty_exported_target.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : lidar/CMakeFiles/_catkin_empty_exported_target.dir/depend
 

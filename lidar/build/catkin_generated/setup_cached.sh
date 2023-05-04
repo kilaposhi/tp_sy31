@@ -7,7 +7,7 @@
 # new environment variables
 
 # modified environment variables
-export CMAKE_PREFIX_PATH="/home/ubuntu/tp_sy31/lidar/devel:$CMAKE_PREFIX_PATH"
-export PWD='/home/ubuntu/tp_sy31/lidar/build'
-export ROSLISP_PACKAGE_DIRECTORIES='/home/ubuntu/tp_sy31/lidar/devel/share/common-lisp'
-export ROS_PACKAGE_PATH="/home/ubuntu/tp_sy31/lidar/src:$ROS_PACKAGE_PATH"
+export CMAKE_PREFIX_PATH="/home/ubuntu/SY31/tp_sy31/lidar/devel:$CMAKE_PREFIX_PATH"
+export PWD='/home/ubuntu/SY31/tp_sy31/lidar/build'
+export ROSLISP_PACKAGE_DIRECTORIES='/home/ubuntu/SY31/tp_sy31/lidar/devel/share/common-lisp'
+export ROS_PACKAGE_PATH="/home/ubuntu/SY31/tp_sy31/lidar/src:$ROS_PACKAGE_PATH"

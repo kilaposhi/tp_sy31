@@ -1,21 +1,21 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp
+Change Dir: /home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_33162/fast && /usr/bin/make -f CMakeFiles/cmTC_33162.dir/build.make CMakeFiles/cmTC_33162.dir/build
-make[1]: Entering directory '/home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_33162.dir/src.c.o
-/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_33162.dir/src.c.o   -c /home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_33162
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_33162.dir/link.txt --verbose=1
-/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_33162.dir/src.c.o  -o cmTC_33162 
-/usr/bin/ld: CMakeFiles/cmTC_33162.dir/src.c.o: in function `main':
+Run Build Command(s):/usr/bin/make cmTC_5e7d4/fast && /usr/bin/make -f CMakeFiles/cmTC_5e7d4.dir/build.make CMakeFiles/cmTC_5e7d4.dir/build
+make[1]: Entering directory '/home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_5e7d4.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_5e7d4.dir/src.c.o   -c /home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_5e7d4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_5e7d4.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_5e7d4.dir/src.c.o  -o cmTC_5e7d4 
+/usr/bin/ld: CMakeFiles/cmTC_5e7d4.dir/src.c.o: in function `main':
 src.c:(.text+0x46): undefined reference to `pthread_create'
 /usr/bin/ld: src.c:(.text+0x52): undefined reference to `pthread_detach'
 /usr/bin/ld: src.c:(.text+0x63): undefined reference to `pthread_join'
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_33162.dir/build.make:87: cmTC_33162] Error 1
-make[1]: Leaving directory '/home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_33162/fast] Error 2
+make[1]: *** [CMakeFiles/cmTC_5e7d4.dir/build.make:87: cmTC_5e7d4] Error 1
+make[1]: Leaving directory '/home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_5e7d4/fast] Error 2
 
 
 Source file was:
@@ -39,20 +39,20 @@ int main(void)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp
+Change Dir: /home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_98c97/fast && /usr/bin/make -f CMakeFiles/cmTC_98c97.dir/build.make CMakeFiles/cmTC_98c97.dir/build
-make[1]: Entering directory '/home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_98c97.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_98c97.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
-Linking C executable cmTC_98c97
-/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_98c97.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_98c97.dir/CheckFunctionExists.c.o  -o cmTC_98c97  -lpthreads 
+Run Build Command(s):/usr/bin/make cmTC_8b2a4/fast && /usr/bin/make -f CMakeFiles/cmTC_8b2a4.dir/build.make CMakeFiles/cmTC_8b2a4.dir/build
+make[1]: Entering directory '/home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8b2a4.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_8b2a4.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.16/Modules/CheckFunctionExists.c
+Linking C executable cmTC_8b2a4
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8b2a4.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_8b2a4.dir/CheckFunctionExists.c.o  -o cmTC_8b2a4  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-make[1]: *** [CMakeFiles/cmTC_98c97.dir/build.make:87: cmTC_98c97] Error 1
-make[1]: Leaving directory '/home/ubuntu/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
-make: *** [Makefile:121: cmTC_98c97/fast] Error 2
+make[1]: *** [CMakeFiles/cmTC_8b2a4.dir/build.make:87: cmTC_8b2a4] Error 1
+make[1]: Leaving directory '/home/ubuntu/SY31/tp_sy31/lidar/build/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_8b2a4/fast] Error 2
 
 
 

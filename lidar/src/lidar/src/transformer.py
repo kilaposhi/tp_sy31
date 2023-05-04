@@ -13,13 +13,17 @@ PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('c', 12, PointField.INT16, 1)
 ]
 
-def callback(msg):
+def callback(msg : LaserScan):
     coords = []
 
     for i, theta in enumerate(np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)):
         # ToDo: Remove points too close
+        if msg.ranges[i] < 0.1 :
+            pass        # ToDo: Polar to Cartesian transformation
 
-        # ToDo: Polar to Cartesian transformation
+        x = msg.ranges[i]*np.cos(theta)
+        y = msg.ranges[i]*np.sin(theta)
+        coords.append([x,y])
 
     # Create a PointCloud2 message from coordinates
     pc2 = create_cloud(msg.header, PC2FIELDS, [[x,y,0,0] for x,y in coords])
