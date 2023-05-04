@@ -1,3 +1,5 @@
-./lidar/devel/
-./lidar/build/
-./.idea/
+.idea/
+lidar/build/
+lidar/devel/
+my_workspace/build/
+my_workspace/devel/
