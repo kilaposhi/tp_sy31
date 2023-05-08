@@ -15,7 +15,7 @@ PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('c', 12, PointField.INT16, 1)
 ]
 
-def callback(msg):
+def callback(msg :PointCloud2):
     clusters = {}
     cylinders = MarkerArray()
     for x,y,z,c in read_points(msg):
@@ -25,11 +25,22 @@ def callback(msg):
     for c, points in clusters.items():
         points = np.array(points)
 
+    
         # ToDo: Calculate cluster center
-        center = 
+        # x_mean =  np.max(points[c][0]) - np.min(points[c][0])
+        # y_mean =  np.mean(points[c][1])
+        # center =(x_mean, y_mean) 
+        center = np.array([(np.max(points[:,0])+ np.min(points[:,0]))/2,(np.max(points[:,1])+ np.min(points[:,1]))/2        ])
+        radius = np.max(np.linalg.norm(points- center, axis=1))
 
         # ToDo: Calculate cluster radius
-        radius = 
+        # distances_center = []
+        # for point in points:
+            # dx= point[0]-center[0] 
+            # dy= point[1]-center[1] 
+            # distance = np.sqrt(dx**2 + dy**2)
+            # distances_center.append(distance)
+        # radius = np.max(distances_center)
 
         if 2*radius<1:
             cylinder = Marker()

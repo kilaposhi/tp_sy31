@@ -39,7 +39,7 @@ def callback(msg : LaserScan):
     publish_pointCloud2.publish(pointCloud2)
 
 if __name__ == '__main__':
-    rospy.init_node('transformer')
+    rospy.init_node('LaserScan_to_points')
     publish_pointCloud2 = rospy.Publisher('/lidar/points', PointCloud2, queue_size=10)
     rospy.Subscriber('/scan', LaserScan, callback)
     rospy.spin()

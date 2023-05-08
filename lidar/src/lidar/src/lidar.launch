@@ -1,5 +1,6 @@
 <launch>
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lidar)/lidar.rviz" output="screen" />
     <node name="transformer" pkg="lidar" type="transformer" />
+    <node name="clusterer" pkg="lidar" type="clusterer" />
     <!-- ToDo: Other Nodes -->
 </launch>
