@@ -1,0 +1,8 @@
+<launch>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lidar)/lidar.rviz" output="screen" />
+    <node name="player" pkg="rosbag" type="play"  output="screen" args="$(find lidar)/lidar.bag"/>
+    <node name="points" pkg="lidar" type="LaserScan_to_points.py" />
+    <node name="clusters" pkg="lidar" type="clusterer.py" />
+    
+    <!-- ToDo: Other Nodes -->
+</launch>

@@ -1,6 +1,0 @@
-<launch>
-    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find lidar)/lidar.rviz" output="screen" />
-    <node name="LaserScan_to_points" pkg="lidar" type="LaserScan_to_points" />
-    <node name="clusterer" pkg="lidar" type="clusterer" />
-    <!-- ToDo: Other Nodes -->
-</launch>
