@@ -18,8 +18,11 @@ Point = [float, float]
 
 def callback(msg : PointCloud2):
 
-    def points_from_PointCloud2(message: PointCloud2) -> np.ndarray[Point]:
+    def points_from_PointCloud2(message) :
         return np.array(list(read_points(msg)))[:,:2]
+
+    def compute_distance(point1: Point, point2: Point):
+        return  norm(point2-point1)
     
     points = points_from_PointCloud2(msg)
     number_points = points.shape[0]
@@ -29,11 +32,7 @@ def callback(msg : PointCloud2):
     k = 6
     D = 0.1
 
-
     distance = np.zeros(k-1)
-
-    def compute_distance(point1: Point, point2: Point):
-        return  norm(point2-point1)
 
     for i in range(k, points.shape[0]):
         for j in range(1, k) :

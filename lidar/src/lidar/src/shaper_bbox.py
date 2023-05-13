@@ -26,11 +26,12 @@ def callback(msg):
         points = np.array(points)
 
         # ToDo: Calculate cluster center
-        center = 
+        center = np.array([(np.max(points[:,0])+ np.min(points[:,0]))/2,(np.max(points[:,1])+ np.min(points[:,1]))/2])
 
         # ToDo: Calculate cluster length and width
-        width, length = 
-
+        width = np.max(points[:,0]) - np.min(points[:,0])
+        length = np.max(points[:,1]) - np.min(points[:,1])
+        
         if length<1 and width<1:
             bbox = Marker()
             bbox.header = msg.header

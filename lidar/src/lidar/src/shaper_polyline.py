@@ -24,7 +24,30 @@ def dist_seg(pM, p1, p2):
 
 def rdp(points, eps):
     # ToDo: Ramer-Douglas-Peucker Algorithm
+    dist_max = 0
+    j_max = 0
+    distance = np.zeros(points.shape[0])
 
+    for i in range(points.shape[0]) :
+        distance[i] = dist_seg(points[i], points[0], points[points.shape[0]-1])
+
+    dist_max = np.max(distance)
+    j_max = np.where(distance == dist_max)[0]
+    print("j_max :",j_max,"\n")
+
+    if (dist_max > eps):
+
+        res_points = np.array([])
+        p_res1 = rdp(points[0:j_max[0],:], eps)
+        p_res2 = rdp(points[j_max[0]:points.shape[0]-1,:], eps)
+        print("res_points before : ",res_points,"\n")
+        np.append(res_points, p_res1)   
+        np.append(res_points, p_res2)
+        print("res_points after : ",res_points,"\n")
+    else :
+        res_points = np.append(points[0], points[points.shape[0]-1]) 
+        print("res_points generical : ",res_points,"\n")
+    
     return res_points
 
 def callback(msg, eps):

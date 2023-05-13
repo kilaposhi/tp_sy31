@@ -30,7 +30,7 @@ def callback(msg :PointCloud2):
         # x_mean =  np.max(points[c][0]) - np.min(points[c][0])
         # y_mean =  np.mean(points[c][1])
         # center =(x_mean, y_mean) 
-        center = np.array([(np.max(points[:,0])+ np.min(points[:,0]))/2,(np.max(points[:,1])+ np.min(points[:,1]))/2        ])
+        center = np.array([(np.max(points[:,0])+ np.min(points[:,0]))/2,(np.max(points[:,1])+ np.min(points[:,1]))/2])
         radius = np.max(np.linalg.norm(points- center, axis=1))
 
         # ToDo: Calculate cluster radius
