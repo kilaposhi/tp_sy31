@@ -26,26 +26,22 @@ def rdp(points, eps):
     # ToDo: Ramer-Douglas-Peucker Algorithm
     dist_max = 0
     j_max = 0
-    distance = np.zeros(points.shape[0])
 
     for i in range(points.shape[0]) :
-        distance[i] = dist_seg(points[i], points[0], points[points.shape[0]-1])
+        distance = dist_seg(points[i], points[0], points[points.shape[0]-1])
 
-    dist_max = np.max(distance)
-    j_max = np.where(distance == dist_max)[0]
-    res_points = np.array([])
+        if (distance > dist_max):
+            j_max = i
+            dist_max = distance
+
     if (dist_max > eps):
+        p_res1 = rdp(points[0:j_max,:], eps)
+        p_res2 = rdp(points[j_max:points.shape[0]-1,:], eps)
 
-        print("ok")
-        p_res1 = rdp(points[0:j_max[0],:], eps)
-        p_res2 = rdp(points[j_max[0]:points.shape[0]-1,:], eps)
+        return np.vstack((p_res1[:-1], p_res2))
 
-        np.append(res_points, p_res1)   
-        np.append(res_points, p_res2)
     else :
-        res_points = np.append(points[0], points[points.shape[0]-1]) 
-    
-    return res_points
+        return np.vstack((points[0], points[points.shape[0]-1]))
 
 def callback(msg, eps):
     clusters = {}
