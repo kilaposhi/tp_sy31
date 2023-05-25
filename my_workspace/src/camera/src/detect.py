@@ -30,6 +30,8 @@ class CameraNode:
         img_bgr: Width*Height*3 Numpy matrix storing the image
         '''
         # Convert ROS Image -> OpenCV
+        
+
         try:
             img_bgr = self.bridge.imgmsg_to_cv2(msg, "bgr8")
         except CvBridgeError as e:
@@ -37,10 +39,49 @@ class CameraNode:
             return
 
         # TODO
+        img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
 
+        lower_hue = 190 
+        upper_hue = 205
+
+        lower_sat = 60
+        upper_sat = 100
+
+        lower_val = 30
+        upper_val = 90
+
+        #lower_bound = np.array([108, 139, 121])
+        lower_bound = np.array([lower_hue/2, lower_sat*2.55, lower_val*2.55])
+        #upper_bound = np.array([68, 103, 70])
+        upper_bound = np.array([upper_hue/2, upper_sat*2.55, upper_val*2.55])
+        cv2.normalize(img_hsv, None, 0, 255, cv2.NORM_MINMAX)
+
+        img_processed = cv2.inRange(img_hsv, lower_bound, upper_bound)
+        
+        contours, hierarchy = cv2.findContours(img_processed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        img_processed = cv2.drawContours(img_bgr, contours, -1, (0, 0, 255), 3)
+        
+        max_area = 0
+        max_index = 0
+        for index, contour in enumerate(contours):
+            area = cv2.contourArea(contour)
+            if area > max_area :
+                max_index = index
+                max_area = area
+
+
+        #areas = [(cv2.contourArea(contour), index) for index, contour in enumerate(contours)]
+        #area_max = np.max(areas[0])
+
+
+        contour_max = contours[max_index]
+        M = cv2.moments(contour_max)
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
+        cv2.circle(img_bgr, (cx,cy), 7, (255, 255, 255), -1)
         # Convert OpenCV -> ROS Image and publish
         try:
-            self.pub_img.publish(self.bridge.cv2_to_imgmsg(img_bgr, "bgr8")) # /!\ 'mono8' for grayscale images, 'bgr8' for color images
+            self.pub_img.publish(self.bridge.cv2_to_imgmsg(img_processed, "bgr8")) # /!\ 'mono8' for grayscale images, 'bgr8' for color images
         except CvBridgeError as e:
             rospy.logwarn(e)
 
