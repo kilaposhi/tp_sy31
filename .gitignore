@@ -1,2 +1,5 @@
-lidar/devel/
+.idea/
 lidar/build/
+lidar/devel/
+my_workspace/build/
+my_workspace/devel/
