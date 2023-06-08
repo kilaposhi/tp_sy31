@@ -2,7 +2,7 @@
     <node name="panneau" pkg="rosbag" type="play"  output="screen" args="$(find projet)/bag/petit_carton_bleu.bag"/>
 
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find projet)/lidar.rviz" output="screen" />
-    <node name="points" pkg="projet" type="LaserScan_to_points.py" />
+    <node name="points" pkg="projet" type="zone_to_detect.py" />
     <node name="clusters" pkg="projet" type="clusterer.py" />
     <node name="bbox" pkg="projet" type="shaper_bbox.py" />
     <node name="polylines" pkg="projet" type="shaper_polyline.py" />

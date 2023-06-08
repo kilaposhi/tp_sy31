@@ -30,20 +30,20 @@ def callback(msg : LaserScan):
     coordinates = []
 
     for i, theta in enumerate(np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)):
-
+        
         if msg.ranges[i] < MIN_DISTANCE:
             pass        
-        if np.degrees(theta)<65:
-            cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
-            coordinates.append(cartesian_point)
             
-
+        if np.degrees(theta)>50:
+            pass
+        cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
+        coordinates.append(cartesian_point)
+        
     pointCloud2 = create_cloud(msg.header, PointCloud2FIELDS, [[x,y,0,0] for x,y in coordinates])
     publish_pointCloud2.publish(pointCloud2)
-"""
+
 if __name__ == '__main__':
     rospy.init_node('LaserScan_to_points')
     publish_pointCloud2 = rospy.Publisher('/lidar/points', PointCloud2, queue_size=10)
     rospy.Subscriber('/scan', LaserScan, callback)
     rospy.spin()
-"""
