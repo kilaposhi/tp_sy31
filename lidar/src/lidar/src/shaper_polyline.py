@@ -24,8 +24,24 @@ def dist_seg(pM, p1, p2):
 
 def rdp(points, eps):
     # ToDo: Ramer-Douglas-Peucker Algorithm
+    dist_max = 0
+    j_max = 0
 
-    return res_points
+    for i in range(points.shape[0]) :
+        distance = dist_seg(points[i], points[0], points[points.shape[0]-1])
+
+        if (distance > dist_max):
+            j_max = i
+            dist_max = distance
+
+    if (dist_max > eps):
+        p_res1 = rdp(points[0:j_max,:], eps)
+        p_res2 = rdp(points[j_max:points.shape[0]-1,:], eps)
+
+        return np.vstack((p_res1[:-1], p_res2))
+
+    else :
+        return np.vstack((points[0], points[points.shape[0]-1]))
 
 def callback(msg, eps):
     clusters = {}
