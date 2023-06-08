@@ -2,7 +2,7 @@
 
 import rospy
 import numpy as np
-import cv2
+import cv2 as cv
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
 
@@ -39,33 +39,35 @@ class CameraNode:
             return
 
         # TODO
-        img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+        img_hsv = cv.cvtColor(img_bgr, cv.COLOR_BGR2HSV)
 
-        lower_hue = 190 
-        upper_hue = 205
+        lower_hue = 124 
+        upper_hue = 314
 
-        lower_sat = 60
+        lower_sat = 20
         upper_sat = 100
 
-        lower_val = 30
-        upper_val = 90
+        lower_val = 0
+        upper_val = 100
+
+        # 'blue': [[128, 255, 255], [90, 50, 70]],
 
 
         #lower_bound = np.array([108, 139, 121])
         lower_bound = np.array([lower_hue/2, lower_sat*2.55, lower_val*2.55])
         #upper_bound = np.array([68, 103, 70])
         upper_bound = np.array([upper_hue/2, upper_sat*2.55, upper_val*2.55])
-        cv2.normalize(img_hsv, None, 0, 255, cv2.NORM_MINMAX)
+        # cv.normalize(img_hsv, None, 0, 255, cv.NORM_MINMAX)
 
-        img_processed = cv2.inRange(img_hsv, lower_bound, upper_bound)
+        img_processed = cv.inRange(img_hsv, lower_bound, upper_bound)
         
-        contours, hierarchy = cv2.findContours(img_processed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-        img_processed = cv2.drawContours(img_bgr, contours, -1, (0, 0, 255), 3)
+        contours, hierarchy = cv.findContours(img_processed, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+        img_processed = cv.drawContours(img_bgr, contours, -1, (0, 0, 255), 3)
         
         max_area = 0
         max_index = 0
         for index, contour in enumerate(contours):
-            area = cv2.contourArea(contour)
+            area = cv.contourArea(contour)
             if area > max_area :
                 max_index = index
                 max_area = area
@@ -76,10 +78,10 @@ class CameraNode:
 
 
         contour_max = contours[max_index]
-        M = cv2.moments(contour_max)
+        M = cv.moments(contour_max)
         cx = int(M["m10"] / M["m00"])
         cy = int(M["m01"] / M["m00"])
-        cv2.circle(img_bgr, (cx,cy), 7, (255, 255, 255), -1)
+        cv.circle(img_bgr, (cx,cy), 7, (255, 255, 255), -1)
         # Convert OpenCV -> ROS Image and publish
         try:
             self.pub_img.publish(self.bridge.cv2_to_imgmsg(img_processed, "bgr8")) # /!\ 'mono8' for grayscale images, 'bgr8' for color images
