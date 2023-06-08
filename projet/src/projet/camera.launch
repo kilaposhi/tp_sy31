@@ -1,4 +1,6 @@
 <launch>
+    <node name="panneau" pkg="rosbag" type="play"  output="screen" args="$(find projet)/bag/gros_carton_bleu.bag"/>
+
 	<arg name="transport" default="compressed" />
 	<arg name="ns_base" default="turtlebotcam" />
 	<arg name="ns_repl" default="camera" />
@@ -10,5 +12,4 @@
 
 
     <node name="detect" pkg="projet" type="detect.py" />
-    <node name="panneau" pkg="rosbag" type="play"  output="screen" args="$(find projet)/bag/petit_carton_bleu.bag"/>
 </launch>
