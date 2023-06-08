@@ -1,8 +1,0 @@
-prefix=/home/ubuntu/SY31/tp_sy31/projet/install
-
-Name: projet
-Description: Description of projet
-Version: 0.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 

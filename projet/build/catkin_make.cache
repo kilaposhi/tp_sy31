@@ -1,2 +1,0 @@
-projet
--DCATKIN_DEVEL_PREFIX=/home/ubuntu/SY31/tp_sy31/projet/devel -DCMAKE_INSTALL_PREFIX=/home/ubuntu/SY31/tp_sy31/projet/install -G Unix Makefiles
