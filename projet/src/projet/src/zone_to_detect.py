@@ -33,12 +33,12 @@ def callback(msg : LaserScan):
         
         if msg.ranges[i] < MIN_DISTANCE:
             pass        
-            
-        if np.degrees(theta)>50:
-            pass
-        cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
-        coordinates.append(cartesian_point)
         
+        degres = np.degrees(theta)
+        if (degres>330) or (degres>0 and degres<30):
+            cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
+            coordinates.append(cartesian_point)
+
     pointCloud2 = create_cloud(msg.header, PointCloud2FIELDS, [[x,y,0,0] for x,y in coordinates])
     publish_pointCloud2.publish(pointCloud2)
 
