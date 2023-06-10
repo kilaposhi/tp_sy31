@@ -15,6 +15,7 @@ PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
 ]
 
 Point = [float, float]
+global_array =  np.array([])
 
 def pointCloud2_To_points(message: PointCloud2):
     points = np.array(list(read_points(message)))[:,:2]
@@ -22,7 +23,7 @@ def pointCloud2_To_points(message: PointCloud2):
 
 def callback(msg : PointCloud2):
 
-    
+    global global_array
     points = pointCloud2_To_points(msg)
     number_points = points.shape[0]
     clusters = np.zeros(number_points, dtype=int)
@@ -58,10 +59,17 @@ def callback(msg : PointCloud2):
     for _, c in enumerate(clusters) :
         color_array = np.append(color_array, c)
 
-    print(np.mean(color_array))
-
     clust_msg = create_cloud(msg.header, PC2FIELDS, [[points[i,0],points[i,1],0,c] for i,c in enumerate(clusters)])
-    #print(clust_msg)
+    """
+    Dans le tableau global_array, on obtient toutes les moyennes d'intensité de réflexion (en couleur)
+    Lorsque l'on fait la moyenne de global array, on obtient donc la couleur moyenne de la zone observée,
+    devant le robot. Ainsi, si un objet est réfléchissant, cette moyenne devrait être élevée, sinon, elle devrait
+    être plus basse. Pour discriminer les objets réflechissants des non-réflechissants, on peut introduire
+    un seuil (environ 3.15 après test, mais la limite est très fine entre non réfléchissants et réfléchissants)
+
+    """
+    global_array = np.append(global_array, np.mean(color_array))
+    print(np.mean(global_array))
     pub_clusters.publish(clust_msg)
 
 if __name__ == '__main__':
