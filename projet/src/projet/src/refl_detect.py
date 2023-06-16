@@ -22,10 +22,12 @@ def pointCloud2_To_points(message: PointCloud2):
     points = np.array(list(read_points(message)))[:,:2]
     return points
 
-def callback_us(msg_us : Float32):
+def callback_us(msg_us : Int32):
     global global_array
 
-    print(msg_us)
+    if msg_us.data > 50000:
+        global_array = np.array([])
+        print("Reset !")
 
 def callback(msg : PointCloud2):
     #print(msg_us)
@@ -75,11 +77,12 @@ def callback(msg : PointCloud2):
     un seuil (environ 3.15 après test, mais la limite est très fine entre non réfléchissants et réfléchissants)
 
     """
-    #global_array = np.append(global_array, np.mean(color_array))
-    moyenne = np.mean(color_array)
+    global_array = np.append(global_array, np.mean(color_array))
+    #moyenne = np.mean(color_array)
     #print(np.mean(color_array))
-    moyenne = np.mean(color_array) # à voir si ici on ne met pas la moyenne globale
+    moyenne = np.mean(global_array) # à voir si ici on ne met pas la moyenne globale
 
+    print(moyenne)
     if moyenne > 3.40:
         print("Objet réfléchissant")
     else :
@@ -91,5 +94,5 @@ if __name__ == '__main__':
     rospy.init_node('clusterer')
     pub_clusters = rospy.Publisher('/lidar/clusters', PointCloud2, queue_size=10)
     rospy.Subscriber('/lidar/points', PointCloud2, callback)
-    rospy.Subscriber('/distance_us', Float32, callback_us)
+    rospy.Subscriber('/ultrasound', Int32, callback_us)
     rospy.spin()
