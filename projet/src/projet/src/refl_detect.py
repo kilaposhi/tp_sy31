@@ -7,6 +7,7 @@ import rospy
 # Type of input and output messages
 from sensor_msgs.point_cloud2 import create_cloud, read_points
 from sensor_msgs.msg import PointCloud2, PointField
+from std_msgs.msg import Int32, Float32
 
 PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('y', 4, PointField.FLOAT32, 1),
@@ -21,7 +22,13 @@ def pointCloud2_To_points(message: PointCloud2):
     points = np.array(list(read_points(message)))[:,:2]
     return points
 
+def callback_us(msg_us : Float32):
+    global global_array
+
+    print(msg_us)
+
 def callback(msg : PointCloud2):
+    #print(msg_us)
 
     global global_array
     points = pointCloud2_To_points(msg)
@@ -68,25 +75,21 @@ def callback(msg : PointCloud2):
     un seuil (environ 3.15 après test, mais la limite est très fine entre non réfléchissants et réfléchissants)
 
     """
-    global_array = np.append(global_array, np.mean(color_array))
-    moyenne = np.mean(global_array)
-    #moyenne = np.mean(color_array) # à voir si ici on ne met pas la moyenne globale
+    #global_array = np.append(global_array, np.mean(color_array))
+    moyenne = np.mean(color_array)
+    #print(np.mean(color_array))
+    moyenne = np.mean(color_array) # à voir si ici on ne met pas la moyenne globale
 
-    print(moyenne)
-    if moyenne > 3.20:
+    if moyenne > 3.40:
         print("Objet réfléchissant")
     else :
         print("Objet pas réfléchissant")
     
-    if moyenne < 2.90:
-        global_array = np.array([])
-
     pub_clusters.publish(clust_msg)
-
-
 
 if __name__ == '__main__':
     rospy.init_node('clusterer')
     pub_clusters = rospy.Publisher('/lidar/clusters', PointCloud2, queue_size=10)
     rospy.Subscriber('/lidar/points', PointCloud2, callback)
+    rospy.Subscriber('/distance_us', Float32, callback_us)
     rospy.spin()
