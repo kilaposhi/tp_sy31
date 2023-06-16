@@ -11,5 +11,5 @@
 	<node pkg="image_proc" type="image_proc" name="image_proc" ns="$(arg ns_repl)" />
 
 
-    <node name="detect" pkg="projet" type="detect.py" />
+    <!-- <node name="detect" pkg="projet" type="detect.py" /> -->
 </launch>
