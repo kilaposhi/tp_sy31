@@ -69,8 +69,21 @@ def callback(msg : PointCloud2):
 
     """
     global_array = np.append(global_array, np.mean(color_array))
-    print(np.mean(global_array))
+    moyenne = np.mean(global_array)
+    #moyenne = np.mean(color_array) # à voir si ici on ne met pas la moyenne globale
+
+    print(moyenne)
+    if moyenne > 3.20:
+        print("Objet réfléchissant")
+    else :
+        print("Objet pas réfléchissant")
+    
+    if moyenne < 2.90:
+        global_array = np.array([])
+
     pub_clusters.publish(clust_msg)
+
+
 
 if __name__ == '__main__':
     rospy.init_node('clusterer')
