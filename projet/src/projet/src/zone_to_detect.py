@@ -35,7 +35,7 @@ def callback(msg : LaserScan):
             pass        
         
         degres = np.degrees(theta)
-        if (degres>330) or (degres>0 and degres<30):
+        if (degres>355) or (degres>0 and degres<20):
             cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
             coordinates.append(cartesian_point)
 

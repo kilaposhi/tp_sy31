@@ -33,12 +33,13 @@ def callback(msg : PointCloud2):
     #print(msg_us)
 
     global global_array
+    test_array = np.array([])
     points = pointCloud2_To_points(msg)
     number_points = points.shape[0]
     clusters = np.zeros(number_points, dtype=int)
 
     # ToDo: Determine k and D values
-    k = 6 # [point]
+    k = 2 # [point]
     DISTANCE_THRESHOLD = 0.1 # [m]
 
 
@@ -63,9 +64,14 @@ def callback(msg : PointCloud2):
             if clusters[i-jmin] == 0:
                 clusters[i-jmin] = np.max(clusters) + 1
             clusters[i] = clusters[i-jmin]
-    
+
+    pointcloud_iter = read_points(msg, field_names = "intensity")
+    for point in pointcloud_iter:
+        test_array = np.append(test_array, point[0])
+
+    print("moyenne de test : ",np.mean(test_array))
     color_array = np.array([])
-    for _, c in enumerate(clusters) :
+    for _, c in enumerate(clusters) :   
         color_array = np.append(color_array, c)
 
     clust_msg = create_cloud(msg.header, PC2FIELDS, [[points[i,0],points[i,1],0,c] for i,c in enumerate(clusters)])
@@ -82,12 +88,13 @@ def callback(msg : PointCloud2):
     #print(np.mean(color_array))
     moyenne = np.mean(global_array) # à voir si ici on ne met pas la moyenne globale
 
-    print(moyenne)
-    if moyenne > 3.40:
+    #print("Moyenne de base : ", moyenne)
+    """
+    if moyenne > 1.90:
         print("Objet réfléchissant")
     else :
         print("Objet pas réfléchissant")
-    
+    """
     pub_clusters.publish(clust_msg)
 
 if __name__ == '__main__':
