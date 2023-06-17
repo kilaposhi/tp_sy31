@@ -1,7 +1,11 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python2
 
+from curses.textpad import rectangle
+
+from matplotlib.patches import Shadow
 import rospy
 from enum import Enum
+from typing import Type
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
@@ -15,43 +19,10 @@ class Color(Enum):
     BLUE = 2
     WHITE = 3
 
-def hsv_to_cv_hsv(hsv) -> np.array :
-    hue, saturation, value = hsv 
-    hsv = (hue/2, saturation*2.55, value*2.55) 
-    return hsv
-
-def check_area(max_area):
-    AREA_MINIMUM = 30_000 
-    if (max_area < AREA_MINIMUM):
-        return False
-    return True
-        
-def compute_max_area(img_bgr, lower_bound_HSV, upper_bound_HSV):
-
-    img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
-    img_processed = cv2.inRange(img_hsv, lower_bound_HSV, upper_bound_HSV)
-    # img_processed = cv2.morphologyEx(img_processed, cv2.MORPH_OPEN, cv2.MORPH_RECT)
-
-    contours, hierarchy = cv2.findContours(img_processed, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-
-    areas = [cv2.contourArea(contour) for contour in contours]
-    max_contour_index = areas.index(np.max(areas))
-    
-    return areas[max_contour_index], contours, max_contour_index
-
-def draw_contours(img_bgr, contours, max_contour_index):
-    if not contours:
-        raise Exception("No contours")
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
-    img_bgr = cv2.drawContours(img_bgr, contours, -1, BLACK, 3)
-    contour_max = contours[max_contour_index]
-   
-    M = cv2.moments(contour_max)
-    cx = int(M["m10"] / M["m00"])
-    cy = int(M["m01"] / M["m00"])
-    cv2.circle(img_bgr, (cx,cy), 7, BLACK, -1)
-    return img_bgr
+class Shape(Enum):
+    NONE = 0
+    RECTANGLE = 1
+    CIRCLE = 2
 
 class CameraNode:
     def __init__(self):
@@ -63,6 +34,7 @@ class CameraNode:
 
         # Initialize the node parameters
         self.color = Color.NONE
+        self.shape = Shape.NONE
 
         # Publisher to the output topics.
         self.pub_img = rospy.Publisher('~output', Image, queue_size=10)
@@ -70,9 +42,123 @@ class CameraNode:
         # Subscriber to the input topic. self.callback is called when a message is received
         self.subscriber = rospy.Subscriber('/camera/image_color', Image, self.callback)
 
+    def hsv_to_cv_hsv(self, hsv):
+        hue, saturation, value = hsv 
+        hsv = (hue/2, saturation*2.55, value*2.55) 
+        return hsv
+
+    def check_area(self, max_area):
+        AREA_MINIMUM = 30_000 
+        if (max_area < AREA_MINIMUM):
+            return False
+        return True
+            
+    def compute_max_area(self, img_processed):
+        contours, _ = cv2.findContours(img_processed, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+
+        areas = [cv2.contourArea(contour) for contour in contours]
+        max_contour_index = areas.index(np.max(areas))
+        max_area = areas[max_contour_index]
+        
+        if self.check_area(max_area):
+            return max_area, contours, contours[max_contour_index]
+        return 0, [[0]], [0] 
+
+    def filter_HSV(self, img_bgr, boundaries_HSV):
+        lower_bound_HSV, upper_bound_HSV = boundaries_HSV
+        img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
+        img_processed = cv2.inRange(img_hsv, lower_bound_HSV, upper_bound_HSV)
+        
+        morph_size = 4
+        element = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (2*morph_size + 1, 2*morph_size+1), (morph_size, morph_size))
+        operation  = cv2.MORPH_OPEN
+
+        img_processed = cv2.morphologyEx(img_processed, operation, element)
+        return img_processed
+    
+    
+    def blur_around(self, img_gray):
+        # Create ROI coordinates
+        width, length= np.shape(img_gray)
+        topLeft = (int(length/6) - 50,int(width/5))
+        bottomRight = (5*int(length/6),4*int(width/5))
+        x, y = topLeft
+        w, h = bottomRight[0] - topLeft[0], bottomRight[1] - topLeft[1]
+
+        # Grab ROI with Numpy slicing and blur
+        ROI = img_gray[y:y+h, x:x+w]
+        ROI = cv2.blur(ROI, (2,2))
+        blur = cv2.blur(img_gray, (25,25)) 
+
+        # Insert ROI back into image
+        blur[y:y+h, x:x+w] = ROI
+        return blur
 
 
-    def callback(self, msg: Image):
+    def filter_canny(self, img_bgr):
+        img_gray = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2GRAY)
+        img_gray = self.blur_around(img_gray)
+        
+        #lower sigma-->tighter threshold(default value of sigma can be 0.33)
+        sigma = 0.33
+        median = np.median(img_gray)
+        lower_thresh = int(max(0, (1.0 - sigma) * median))
+        upper_thresh = int(min(255, (1.0 + sigma) * median))
+
+        canny_output = cv2.Canny(img_gray, lower_thresh, upper_thresh)
+        morph_size = 1
+        element = cv2.getStructuringElement(cv2.MORPH_CROSS, (2*morph_size + 1, 2*morph_size+1), (morph_size, morph_size))
+        canny_output = cv2.dilate(canny_output, element)
+        return canny_output, img_gray
+
+    def draw_contours(self, img_draw, contours, max_contour):
+        if not contours:
+            raise Exception("No contours")
+        BLACK = (0, 0, 0)
+        WHITE = (255, 255, 255)
+        cv2.drawContours(img_draw, contours, -1, BLACK, 3)
+    
+        M = cv2.moments(max_contour)
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
+        cv2.circle(img_draw, (cx,cy), 7, BLACK, -1)
+        return img_draw
+
+    def detect_form_approxPoly(self, img_draw, contour) -> Shape:
+        perimeter = cv2.arcLength(contour, True)
+        approx_shape = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
+        convex_hull = cv2.convexHull(approx_shape)
+        cv2.drawContours(img_draw, [convex_hull], 0,(0,255,255), 2)
+
+        num_vertices = len(convex_hull)
+        if num_vertices == 4 or num_vertices == 5: # 5 for the noise
+            return Shape.RECTANGLE
+        if num_vertices >= 7:
+            return Shape.CIRCLE
+
+    def detect_forms_area(self, img_draw, contour):
+        # boundRect = cv2.boundingRect(contour)
+        # cv2.rectangle(img_draw, (int(boundRect[0]), int(boundRect[1])), \
+        # (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), (0,0,0), 2)
+        rotatedRect = cv2.minAreaRect(contour)
+        box = cv2.boxPoints(rotatedRect) # cv2.boxPoints(rect) for OpenCV 3.x
+        box = np.int0(box)
+        rect_area = cv2.contourArea(box)
+        cv2.drawContours(img_draw,[box],0,(0,0,255),2)
+
+        center, radius = cv2.minEnclosingCircle(contour)
+        center  = (int(center[0]), int(center[1]))
+        circle_area = self.compute_circle_area(radius)
+        cv2.circle(img_draw, center, 1, (0, 100, 100), 3) # circle center
+        cv2.circle(img_draw, center, int(radius), (255, 0, 255), 3) # circle outline
+        if circle_area < rect_area: return Shape.CIRCLE, img_draw
+        else : return Shape.RECTANGLE, img_draw   
+
+    def compute_circle_area(self, radius):
+        return np.pi * (radius**2)
+
+
+    def callback(self, msg: Type[Image]):
         '''
         Function called when an image is received.
         msg: Image message received
@@ -88,63 +174,42 @@ class CameraNode:
 
         img_bgr_blurred = cv2.blur(img_bgr, (6,6))
 
-
         # HSV = [Hue, Saturation, Value]
         lower_blue_hsv = (175, 20 , 15)
         upper_blue_hsv = (215, 100, 95)
-        lower_blue_hsv = hsv_to_cv_hsv(lower_blue_hsv)
-        upper_blue_hsv = hsv_to_cv_hsv(upper_blue_hsv)
+        blue_boundaries_hsv = (self.hsv_to_cv_hsv(lower_blue_hsv), self.hsv_to_cv_hsv(upper_blue_hsv))
 
         lower_red_hsv = (335, 20, 15)
         upper_red_hsv = (358, 100, 95)
-        lower_red_hsv = hsv_to_cv_hsv(lower_red_hsv)
-        upper_red_hsv = hsv_to_cv_hsv(upper_red_hsv)
+        red_boundaries_hsv = (self.hsv_to_cv_hsv(lower_red_hsv), self.hsv_to_cv_hsv(upper_red_hsv))
     
-        # lower_white_hsv = (61,  5  , 120 ) # from range-detector.py
-        # upper_white_hsv = (109, 182, 255)
         lower_white_hsv = (70,  5  ,45 )
         upper_white_hsv = (209, 64, 95)
-        lower_white_hsv = hsv_to_cv_hsv(lower_white_hsv)
-        upper_white_hsv = hsv_to_cv_hsv(upper_white_hsv)
+        white_boundaries_hsv = (self.hsv_to_cv_hsv(lower_white_hsv), self.hsv_to_cv_hsv(upper_white_hsv))
 
     
-        max_area_blue, blue_contours, max_blue_id = compute_max_area(img_bgr_blurred, lower_blue_hsv, upper_blue_hsv)
-        max_area_red, red_contours, max_red_id = compute_max_area(img_bgr_blurred, lower_red_hsv, upper_red_hsv)
+        max_area_blue, blue_contours, max_blue_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, blue_boundaries_hsv))
+        max_area_red, red_contours, max_red_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, red_boundaries_hsv))
         # max_area_white, white_contours, max_white_id = compute_max_area(img_bgr_blurred, lower_white_hsv, upper_white_hsv)
         
+        img_draw = img_bgr
 
-        contour_max = blue_contours[max_blue_id]
-        contours_poly = cv2.approxPolyDP(contour_max, 3, True)
-        boundRect = cv2.boundingRect(contours_poly)
-        img_draw = img_bgr_blurred
-        cv2.rectangle(img_draw, (int(boundRect[0]), int(boundRect[1])), \
-          (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), (0,0,0), 2)
-        
-        center, radius = cv2.minEnclosingCircle(contours_poly)
-        center  = (int(center[0]), int(center[1]))
-        # circle center
-        cv2.circle(img_draw, center, 1, (0, 100, 100), 3)
-        # circle outline
-        cv2.circle(img_draw, center, int(radius), (255, 0, 255), 3)
-    
-        def compute_circle_area(radius):
-            return np.pi * (radius**2)
+        # canny_output, img_blur = self.filter_Canny(img_bgr)
+        # shape = self.detect_form_approxPoly(img_draw, blue_contours)
 
-        diff_circle = np.abs(compute_circle_area(radius) - max_area_blue)
-        print(f"diff_circle = {diff_circle}, circle theor = {int(compute_circle_area(radius))} , max_area {int(max_area_blue)}")
-        if diff_circle > 70_000:
-            print("not a circle")
-        else:
-            print("A circle")
-        if check_area(max_area_blue):
+        if self.check_area(max_area_blue):
             self.color = Color.BLUE
-            # print("The object is Blue!")
-            # img_draw = draw_contours(img_bgr_blurred, contours_poly, max_blue_id)
+            print("The object is Blue!")
+            img_draw = self.draw_contours(img_draw, blue_contours, max_blue_contour)
+            self.shape, img_draw = self.detect_forms_area(img_draw, max_blue_contour)
+            print(self.shape)
 
-        elif check_area(max_area_red):
+        elif self.check_area(max_area_red):
             self.color = Color.RED
             print("The object is Red!")
-            img_draw = draw_contours(img_bgr_blurred, red_contours, max_red_id)
+            img_draw = self.draw_contours(img_draw, red_contours, max_red_contour)
+            self.shape, img_draw = self.detect_forms_area(img_draw, max_red_contour)
+            print(self.shape)
         else:
             self.color = Color.NONE
             print("No color detected !")
@@ -152,15 +217,11 @@ class CameraNode:
 
         # Convert OpenCV -> ROS Image and publish
         try:
-            self.pub_img.publish(self.bridge.cv2_to_imgmsg(img_draw, "bgr8")) # /!\ 'mono8' for grayscale images, 'bgr8' for color images
+            self.pub_img.publish(self.bridge.cv2_to_imgmsg(img_draw, "bgr8"))
             # self.pub_img.publish(self.bridge.cv2_to_imgmsg(img_processed, "mono8")) # /!\ 'mono8' for grayscale images, 'bgr8' for color images
         except CvBridgeError as e:
             rospy.logwarn(e)
         
-
-
-
-
 
         
 if __name__ == '__main__':
@@ -168,8 +229,3 @@ if __name__ == '__main__':
     node = CameraNode()
     rospy.spin()
 
-
-# Améliorer l'image !!!
-        # img_hsv = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2HSV)
-        # img_processed = cv2.inRange(img_hsv, lower_blue_hsv, upper_blue_hsv)
-        # img_processed = cv2.morphologyEx(img_processed, cv2.MORPH_OPEN, cv2.MORPH_RECT)
