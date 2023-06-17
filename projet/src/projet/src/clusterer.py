@@ -28,7 +28,7 @@ def callback(msg : PointCloud2):
     clusters = np.zeros(number_points, dtype=int)
 
     # ToDo: Determine k and D values
-    k = 6 # [point]
+    k = 20 # [point]
     DISTANCE_THRESHOLD = 0.1 # [m]
 
 
@@ -53,7 +53,6 @@ def callback(msg : PointCloud2):
             if clusters[i-jmin] == 0:
                 clusters[i-jmin] = np.max(clusters) + 1
             clusters[i] = clusters[i-jmin]
-    print(clusters)
 
     clust_msg = create_cloud(msg.header, PC2FIELDS, [[points[i,0],points[i,1],0,c] for i,c in enumerate(clusters)])
     pub_clusters.publish(clust_msg)
