@@ -7,7 +7,7 @@ import rospy
 from sensor_msgs.point_cloud2 import create_cloud
 from sensor_msgs.msg import LaserScan, PointCloud2, PointField
 
-
+MAX_DISTANCE = 2 #[m]
 MIN_DISTANCE = 0.1 #[m]
 
 cartesian_coord = (float,float)
@@ -30,14 +30,13 @@ def callback(msg : LaserScan):
     coordinates = []
 
     for i, theta in enumerate(np.arange(msg.angle_min, msg.angle_max, msg.angle_increment)):
-        
-        if msg.ranges[i] < MIN_DISTANCE:
-            pass        
-        
-        degres = np.degrees(theta)
-        if (degres>355) or (degres>0 and degres<20):
-            cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
-            coordinates.append(cartesian_point)
+
+        if msg.ranges[i] < MAX_DISTANCE:
+
+            degres = np.degrees(theta)
+            if (degres>340) or (degres>0 and degres<15): #250 = coté droit et 30 = coté gauche
+                cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
+                coordinates.append(cartesian_point)
 
     pointCloud2 = create_cloud(msg.header, PointCloud2FIELDS, [[x,y,0,0] for x,y in coordinates])
     publish_pointCloud2.publish(pointCloud2)

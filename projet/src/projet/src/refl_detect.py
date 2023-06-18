@@ -39,7 +39,7 @@ def callback(msg : PointCloud2):
     clusters = np.zeros(number_points, dtype=int)
 
     # ToDo: Determine k and D values
-    k = 2 # [point]
+    k = 6 # [point]
     DISTANCE_THRESHOLD = 0.1 # [m]
 
 
@@ -66,10 +66,16 @@ def callback(msg : PointCloud2):
             clusters[i] = clusters[i-jmin]
 
     pointcloud_iter = read_points(msg, field_names = "intensity")
+    
     for point in pointcloud_iter:
         test_array = np.append(test_array, point[0])
 
-    print("moyenne de test : ",np.mean(test_array))
+    mini_cluster = np.array([])
+    for w in range(np.max(np.round((test_array.size)/2).astype(int)-k, 0), np.maximum(np.round((test_array.size)/2).astype(int)+k, 0)):
+        mini_cluster = np.append(mini_cluster, test_array[w])
+
+    #print("moyenne de test : ", 2*np.mean(test_array))
+    print("médiane approchée de test : ", np.mean(mini_cluster))
     color_array = np.array([])
     for _, c in enumerate(clusters) :   
         color_array = np.append(color_array, c)
