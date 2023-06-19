@@ -1,4 +1,4 @@
-#! /usr/bin/env python2
+#! /usr/bin/env python3
 
 from curses.textpad import rectangle
 
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
+from std_msgs.msg import Int32, Float32
 
 
 class Color(Enum):
@@ -35,12 +36,14 @@ class CameraNode:
         # Initialize the node parameters
         self.color = Color.NONE
         self.shape = Shape.NONE
+        self.dist_us = 0
 
         # Publisher to the output topics.
         self.pub_img = rospy.Publisher('~output', Image, queue_size=10)
 
         # Subscriber to the input topic. self.callback is called when a message is received
         self.subscriber = rospy.Subscriber('/camera/image_color', Image, self.callback)
+        self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
 
     def hsv_to_cv_hsv(self, hsv):
         hue, saturation, value = hsv 
@@ -48,7 +51,7 @@ class CameraNode:
         return hsv
 
     def check_area(self, max_area):
-        AREA_MINIMUM = 30_000 
+        AREA_MINIMUM = 30000 
         if (max_area < AREA_MINIMUM):
             return False
         return True
@@ -75,8 +78,7 @@ class CameraNode:
 
         img_processed = cv2.morphologyEx(img_processed, operation, element)
         return img_processed
-    
-    
+
     def blur_around(self, img_gray):
         # Create ROI coordinates
         width, length= np.shape(img_gray)
@@ -124,7 +126,7 @@ class CameraNode:
         cv2.circle(img_draw, (cx,cy), 7, BLACK, -1)
         return img_draw
 
-    def detect_form_approxPoly(self, img_draw, contour) -> Shape:
+    def detect_form_approxPoly(self, img_draw, contour):
         perimeter = cv2.arcLength(contour, True)
         approx_shape = cv2.approxPolyDP(contour, 0.02 * perimeter, True)
         convex_hull = cv2.convexHull(approx_shape)
@@ -157,8 +159,10 @@ class CameraNode:
     def compute_circle_area(self, radius):
         return np.pi * (radius**2)
 
+    def callback_us(self, msg):
+        self.dist_us = msg.data
 
-    def callback(self, msg: Type[Image]):
+    def callback(self, msg):
         '''
         Function called when an image is received.
         msg: Image message received
@@ -200,6 +204,13 @@ class CameraNode:
         if self.check_area(max_area_blue):
             self.color = Color.BLUE
             print("The object is Blue!")
+            #print("area blue : ", max_area_blue)
+            #print("distance : ", self.dist_us)
+            #print("Ratio distance/areas : ", np.sqrt(max_area_blue)/(self.dist_us))
+            if (max_area_blue)/(self.dist_us) > 7:
+                print("Gros carton bleu !")
+            else :
+                print("Petit carton bleu !")
             img_draw = self.draw_contours(img_draw, blue_contours, max_blue_contour)
             self.shape, img_draw = self.detect_forms_area(img_draw, max_blue_contour)
             print(self.shape)
@@ -207,6 +218,14 @@ class CameraNode:
         elif self.check_area(max_area_red):
             self.color = Color.RED
             print("The object is Red!")
+            #print("area blue : ", max_area_blue)
+            #print("distance : ", self.dist_us)
+            #print("Ratio distance/areas : ", np.sqrt(max_area_red)/(self.dist_us))
+            if (max_area_red)/(self.dist_us) > 7:
+                print("Gros carton rouge !")
+            else :
+                print("Petit carton rouge !")
+            #print("Ratio distance/area : ", area_distance_ratio(self, self.dist_us, max_area_blue))
             img_draw = self.draw_contours(img_draw, red_contours, max_red_contour)
             self.shape, img_draw = self.detect_forms_area(img_draw, max_red_contour)
             print(self.shape)
@@ -227,5 +246,10 @@ class CameraNode:
 if __name__ == '__main__':
     # Start the node and wait until it receives a message or stopped by Ctrl+C
     node = CameraNode()
-    rospy.spin()
+
+    try:
+        rospy.spin()
+    except rospy.ROSInterruptException:
+        pass
+
 
