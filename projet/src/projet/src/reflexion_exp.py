@@ -25,6 +25,8 @@ class Reflexion_detector_Node:
     def __init__(self):
         rospy.init_node('clusterer')
         self.pub_clusters = rospy.Publisher('/lidar/clusters', PointCloud2, queue_size=10)
+        self.pub_clusters = rospy.Publisher('/lidar/reflexion', Char, queue_size=10)
+        
         self.sub_lidar = rospy.Subscriber('/lidar/points', PointCloud2, self.callback_lidar)
         self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
 

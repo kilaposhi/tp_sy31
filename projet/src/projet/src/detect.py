@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 from sensor_msgs.msg import Image
-from std_msgs.msg import Int32, Float32
+from std_msgs.msg import Int32, Float32, String
 
 
 class Color(Enum):
@@ -36,14 +36,17 @@ class CameraNode:
         # Initialize the node parameters
         self.color = Color.NONE
         self.shape = Shape.NONE
-        self.dist_us = 0
+        #self.dist_us = 0
 
         # Publisher to the output topics.
         self.pub_img = rospy.Publisher('~output', Image, queue_size=10)
+        self.pub_color = rospy.Publisher('/color', String, queue_size=10)
+        self.pub_area = rospy.Publisher('/area', Int32, queue_size=10)
+        self.pub_shape = rospy.Publisher('/shape', String, queue_size=10)
 
         # Subscriber to the input topic. self.callback is called when a message is received
         self.subscriber = rospy.Subscriber('/camera/image_color', Image, self.callback)
-        self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
+        #self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
 
     def hsv_to_cv_hsv(self, hsv):
         hue, saturation, value = hsv 
@@ -153,8 +156,8 @@ class CameraNode:
         circle_area = self.compute_circle_area(radius)
         cv2.circle(img_draw, center, 1, (0, 100, 100), 3) # circle center
         cv2.circle(img_draw, center, int(radius), (255, 0, 255), 3) # circle outline
-        if circle_area < rect_area: return Shape.CIRCLE, img_draw
-        else : return Shape.RECTANGLE, img_draw   
+        if circle_area < rect_area: return Shape.CIRCLE, img_draw, "Circle"
+        else : return Shape.RECTANGLE, img_draw, "Rectangle"   
 
     def compute_circle_area(self, radius):
         return np.pi * (radius**2)
@@ -204,34 +207,56 @@ class CameraNode:
         if self.check_area(max_area_blue):
             self.color = Color.BLUE
             print("The object is Blue!")
+            try:
+                self.pub_color.publish("B")
+                self.pub_area.publish(max_area_blue)
+            except CvBridgeError as e:
+                rospy.logwarn(e)
             #print("area blue : ", max_area_blue)
             #print("distance : ", self.dist_us)
             #print("Ratio distance/areas : ", np.sqrt(max_area_blue)/(self.dist_us))
+            """
             if (max_area_blue)/(self.dist_us) > 7:
                 print("Gros carton bleu !")
             else :
                 print("Petit carton bleu !")
+            """
             img_draw = self.draw_contours(img_draw, blue_contours, max_blue_contour)
-            self.shape, img_draw = self.detect_forms_area(img_draw, max_blue_contour)
+            self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_blue_contour)
             print(self.shape)
+            self.pub_shape.publish(shape_string)
 
         elif self.check_area(max_area_red):
             self.color = Color.RED
             print("The object is Red!")
+            try:
+                self.pub_color.publish("R")
+                self.pub_area.publish(max_area_red)
+            except CvBridgeError as e:
+                rospy.logwarn(e)
             #print("area blue : ", max_area_blue)
             #print("distance : ", self.dist_us)
             #print("Ratio distance/areas : ", np.sqrt(max_area_red)/(self.dist_us))
+            """
             if (max_area_red)/(self.dist_us) > 7:
                 print("Gros carton rouge !")
             else :
                 print("Petit carton rouge !")
+            """
             #print("Ratio distance/area : ", area_distance_ratio(self, self.dist_us, max_area_blue))
             img_draw = self.draw_contours(img_draw, red_contours, max_red_contour)
-            self.shape, img_draw = self.detect_forms_area(img_draw, max_red_contour)
+            self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_red_contour)
             print(self.shape)
+            self.pub_shape.publish(shape_string)
+
         else:
             self.color = Color.NONE
             print("No color detected !")
+            self.pub_color.publish("None")
+            self.pub_area.publish(O)
+            self.pub_shape.publish("None")
+
+
     
 
         # Convert OpenCV -> ROS Image and publish
