@@ -34,7 +34,7 @@ def callback(msg : LaserScan):
         if msg.ranges[i] < MAX_DISTANCE:
 
             degres = np.degrees(theta)
-            if (degres>340) or (degres>0 and degres<15): #250 = coté droit et 30 = coté gauche
+            if (degres>350) or (degres>0 and degres<20): #340 = coté droit et 15 = coté gauche
                 cartesian_point = polar_To_cartesian_coord(msg.ranges[i], theta)    
                 coordinates.append(cartesian_point)
 

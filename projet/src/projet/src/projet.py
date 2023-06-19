@@ -14,6 +14,7 @@ class ProjetNode:
         # Initialize the node parameters
         self.area = 0
         self.color = "None"
+        self.shape = "None"
         self.dist_us = 0
         self.reflexion = 0
 
@@ -24,7 +25,8 @@ class ProjetNode:
         self.sub_color = rospy.Subscriber('/detect/color', String, self.callback_color)
         self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
         self.sub_area = rospy.Subscriber('/detect/area', Int32, self.callback_area)
-        self.sub_shape = rospy.Subscriber('/detect/shape', String, queue_size=10)
+        self.sub_shape = rospy.Subscriber('/detect/shape', String, callback_shape)
+        self.sub_lidar = rospy.Subscriber('/lidar/med_clust', Int32, callback_lidar)
 
 
     def callback_us(self, msg):
@@ -36,14 +38,21 @@ class ProjetNode:
     def callback_area(self, msg):
         self.area = msg.data
 
+    def callback_lidar(self, msg):
+        self.reflexion = msg.data
+
+    def callback_shape(self, msg):
+        self.shape = msg.data
+
     def callback(self):
 
     	RATIO_TRESHOLD = 10
     	REFL_TRESHOLD = 10
     	
-    	ratio = np.sqrt(self.sub_area)/self.dist_us
+    	area_ratio = np.sqrt(self.sub_area)/self.dist_us
+    	refl_ratio = self.reflexion*self.dist_us
 
-    	if self.reflexion < REFL_TRESHOLD:
+    	if refl_ratio < REFL_TRESHOLD:
 
     		if self.sub_color == "B":
 

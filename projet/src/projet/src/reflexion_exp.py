@@ -7,7 +7,7 @@ import rospy
 # Type of input and output messages
 from sensor_msgs.point_cloud2 import create_cloud, read_points
 from sensor_msgs.msg import PointCloud2, PointField
-from std_msgs.msg import Int32, Float32
+from std_msgs.msg import Int32, Float32, String
 
 PC2FIELDS = [PointField('x', 0, PointField.FLOAT32, 1),
              PointField('y', 4, PointField.FLOAT32, 1),
@@ -25,16 +25,9 @@ class Reflexion_detector_Node:
     def __init__(self):
         rospy.init_node('clusterer')
         self.pub_clusters = rospy.Publisher('/lidar/clusters', PointCloud2, queue_size=10)
-        self.pub_clusters = rospy.Publisher('/lidar/reflexion', Char, queue_size=10)
+        self.pub_mediane_cluster = rospy.Publisher('/lidar/med_clust', Int32, queue_size=10)
         
         self.sub_lidar = rospy.Subscriber('/lidar/points', PointCloud2, self.callback_lidar)
-        self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
-
-        #Variables
-        self.dist_us = 0
- 
-    def callback_us(self, msg_us : Int32):
-        self.dist_us = msg_us.data
 
     def callback_lidar(self, msg : PointCloud2):
         #print(msg_us)
@@ -79,15 +72,23 @@ class Reflexion_detector_Node:
         for w in range(np.max(np.round((test_array.size)/2).astype(int)-k, 0), np.maximum(np.round((test_array.size)/2).astype(int)+k, 0)):
             mini_cluster = np.append(mini_cluster, test_array[w])
 
+        try:
+            self.pub_mediane_cluster.publish(np.mean(mini_cluster))
+            print("Publishing !")
+        except:
+            pass
+
         #print("moyenne de test : ", 2*np.mean(test_array))
+        """
         print("médiane approchée de test : ", np.mean(mini_cluster)*100)
         print("distance en us : ", self.dist_us)
-        print ("rapport médiane/distance :", np.mean(mini_cluster)/self.dist_us*100000)
+        print ("rapport médiane/distance :", np.mean(mini_cluster)*self.dist_us)
         print("\n")
+        
         color_array = np.array([])
         for _, c in enumerate(clusters) :   
             color_array = np.append(color_array, c)
-
+        """
         clust_msg = create_cloud(msg.header, PC2FIELDS, [[points[i,0],points[i,1],0,c] for i,c in enumerate(clusters)])
         """
         Dans le tableau global_array, on obtient toutes les moyennes d'intensité de réflexion (en couleur)
