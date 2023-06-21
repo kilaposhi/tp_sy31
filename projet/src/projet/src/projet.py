@@ -31,7 +31,7 @@ class ProjetNode:
         self.sub_us = rospy.Subscriber('/ultrasound', Int32, self.callback_us)
         self.sub_area = rospy.Subscriber('/detect/area', Int32, self.callback_area)
         self.sub_shape = rospy.Subscriber('/detect/shape', String, self.callback_shape)
-        self.sub_lidar = rospy.Subscriber('/lidar/med_clust', Int32, self.callback_lidar)
+        self.sub_lidar = rospy.Subscriber('/lidar/med_clust', Float32, self.callback)
 
 
     def callback_us(self, msg):
@@ -39,53 +39,58 @@ class ProjetNode:
 
     def callback_color(self, msg):
         self.color = msg.data
-        self.callback()
 
     def callback_area(self, msg):
         self.area = msg.data
 
-    def callback_lidar(self, msg):
-        self.reflexion = msg.data
-        self.callback()
-
     def callback_shape(self, msg):
         self.shape = msg.data
-        self.callback()
 
-    def callback(self):
-        RATIO_TRESHOLD = 10
-        REFL_TRESHOLD = 10
-        area_ratio = np.sqrt(self.sub_area)/self.dist_us
+    def callback(self, msg):
+
+        self.reflexion = msg.data
+
+        RATIO_TRESHOLD = 0.1
+        REFL_TRESHOLD = 2300
+        area_ratio = np.sqrt(self.area)/self.dist_us
         refl_ratio = self.reflexion*self.dist_us
+        print(refl_ratio)
+
+        result = "None"
         
         if refl_ratio < REFL_TRESHOLD:
             
-            if self.sub_color == "B":
+            if self.color == "B":
                 if self.shape == "Circle":
                     result = "Blue circle sign"
-                if area_ratio > RATIO_TRESHOLD:
-                    result = "Big blue cardboard"
-                else:
-                    result = "Small blue cardboard"
+                else :
+                    if area_ratio > RATIO_TRESHOLD:
+                        result = "Big blue cardboard"
+                    else:
+                        result = "Small blue cardboard"
 
-            elif self.sub_color == "R":
+            elif self.color == "R":
 
                 if area_ratio > RATIO_TRESHOLD:
                     result ="Big red cardboard"
                 else:
                     result = "Small red cardboard"
-            elif self.sub_color == "W":
+
+            elif self.color == "W":
                 result = "White sign"
+
             else:
                 result = "Undetermined object!"
         else:
-            if self.sub_color == "B":
+            if self.color == "B":
                 if self.shape == "Circle":
                     result = "Blue circle sign"
 
-            elif self.sub_color == "None":
-
-                if refl_ratio > 300:
+            elif self.color == "W":
+                result = "White sign"
+                
+            else:
+                if refl_ratio < 300:
                     result ="Mirror"
                 else:
                     result = "Window"
@@ -93,7 +98,7 @@ class ProjetNode:
         detect_result  = f"{result} : \n\tShape : {self.shape}\tColor : {self.color}\tReflexion : {self.reflexion}"
         print(detect_result)
         try:
-            self.pub_object.publish(detect_result)
+            self.pub_object.publish(String(detect_result))
         except CvBridgeError as e:
             rospy.logwarn(e)
 if __name__ == '__main__':

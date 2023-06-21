@@ -25,7 +25,7 @@ class Reflexion_detector_Node:
     def __init__(self):
         rospy.init_node('clusterer')
         self.pub_clusters = rospy.Publisher('/lidar/clusters', PointCloud2, queue_size=10)
-        self.pub_mediane_cluster = rospy.Publisher('/lidar/med_clust', Int32, queue_size=10)
+        self.pub_mediane_cluster = rospy.Publisher('/lidar/med_clust', Float32, queue_size=10)
         
         self.sub_lidar = rospy.Subscriber('/lidar/points', PointCloud2, self.callback_lidar)
 
@@ -38,7 +38,7 @@ class Reflexion_detector_Node:
         clusters = np.zeros(number_points, dtype=int)
 
         # ToDo: Determine k and D values
-        k = 6 # [point]
+        k = 3 # [point]
         DISTANCE_THRESHOLD = 0.1 # [m]
 
         distance = np.zeros(k-1)
@@ -73,7 +73,7 @@ class Reflexion_detector_Node:
             mini_cluster = np.append(mini_cluster, test_array[w])
 
         try:
-            self.pub_mediane_cluster.publish(np.mean(mini_cluster))
+            self.pub_mediane_cluster.publish(Float32(float(np.mean(mini_cluster))))
             print("Publishing !")
         except:
             pass
