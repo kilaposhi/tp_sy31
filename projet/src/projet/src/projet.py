@@ -51,16 +51,20 @@ class ProjetNode:
         self.reflexion = msg.data
 
         RATIO_TRESHOLD = 0.1
-        REFL_TRESHOLD = 2300
+        # REFL_TRESHOLD = 2300
+        REFL_TRESHOLD = 2050
+        DISTANCE_THRESHOLD = 7000
         area_ratio = np.sqrt(self.area)/self.dist_us
         refl_ratio = self.reflexion*self.dist_us
-        print(refl_ratio)
+        # print(f"reflexion ratio {refl_ratio}\t dist ={self.dist_us}")
 
         result = "None"
         
         if refl_ratio < REFL_TRESHOLD:
+            if refl_ratio < 200:
+                result = "Undetermined Object!"
             
-            if self.color == "B":
+            elif self.color == "B":
                 if self.shape == "Circle":
                     result = "Blue circle sign"
                 else :
@@ -79,6 +83,8 @@ class ProjetNode:
             elif self.color == "W":
                 result = "White sign"
 
+            elif self.dist_us < DISTANCE_THRESHOLD:
+                result = "Window"
             else:
                 result = "Undetermined object!"
         else:
@@ -90,13 +96,9 @@ class ProjetNode:
                 result = "White sign"
                 
             else:
-                if refl_ratio < 300:
-                    result ="Mirror"
-                else:
-                    result = "Window"
-
-        detect_result  = f"{result} : \n\tShape : {self.shape}\tColor : {self.color}\tReflexion : {self.reflexion}"
-        print(detect_result)
+                result ="Mirror"
+        detect_result  = f"""{result} : Shape={self.shape}  Color={self.color}   Reflexion={refl_ratio}  Area={self.area}"""
+        # print(detect_result)
         try:
             self.pub_object.publish(String(detect_result))
         except CvBridgeError as e:

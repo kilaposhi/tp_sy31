@@ -7,6 +7,7 @@ import rospy
 from enum import Enum
 from typing import Type
 import numpy as np
+import copy
 import matplotlib.pyplot as plt
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
@@ -54,7 +55,7 @@ class CameraNode:
         return hsv
 
     def check_area(self, max_area):
-        AREA_MINIMUM = 35000 
+        AREA_MINIMUM = 67000 
         if (max_area < AREA_MINIMUM):
             return False
         return True
@@ -98,6 +99,17 @@ class CameraNode:
         # Insert ROI back into image
         blur[y:y+h, x:x+w] = ROI
         return blur
+
+    def black_around(self, img_bgr):
+        img_shape = np.shape(img_bgr)
+        mask = np.zeros(img_shape, dtype=np.uint8)
+        length, width, _ = img_shape        
+
+        mask = cv2.circle(mask, (int(length/2), int(length/2)), int(length/2.4), (255, 255, 255), -1)
+
+        out = np.where(mask==np.array([255, 255, 255]), img_bgr, mask)
+
+        return out
 
 
     def filter_canny(self, img_bgr):
@@ -193,7 +205,8 @@ class CameraNode:
 
         max_area_blue, blue_contours, max_blue_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, blue_boundaries_hsv))
         max_area_red, red_contours, max_red_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, red_boundaries_hsv))
-        max_area_white, white_contours, max_white_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, white_boundaries_hsv))
+        img_black_around = self.black_around(img_bgr_blurred)
+        max_area_white, white_contours, max_white_contour = self.compute_max_area(self.filter_HSV(img_black_around, white_boundaries_hsv))
 
         img_draw = img_bgr
 
