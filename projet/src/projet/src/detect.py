@@ -162,9 +162,6 @@ class CameraNode:
     def compute_circle_area(self, radius):
         return np.pi * (radius**2)
 
-    def callback_us(self, msg):
-        self.dist_us = msg.data
-
     def callback(self, msg):
         '''
         Function called when an image is received.
@@ -200,7 +197,7 @@ class CameraNode:
 
         img_draw = img_bgr
 
-        # canny_output, img_blur = self.filter_Canny(img_bgr)
+        # canny_output, img_blur = self.filter_canny(img_bgr)
         # shape = self.detect_form_approxPoly(img_draw, blue_contours)
 
         if self.check_area(max_area_blue):
@@ -211,15 +208,6 @@ class CameraNode:
                 self.pub_area.publish(max_area_blue)
             except CvBridgeError as e:
                 rospy.logwarn(e)
-            #print("area blue : ", max_area_blue)
-            #print("distance : ", self.dist_us)
-            #print("Ratio distance/areas : ", np.sqrt(max_area_blue)/(self.dist_us))
-            """
-            if (max_area_blue)/(self.dist_us) > 7:
-                print("Gros carton bleu !")
-            else :
-                print("Petit carton bleu !")
-            """
             img_draw = self.draw_contours(img_draw, blue_contours, max_blue_contour)
             self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_blue_contour)
             print(self.shape)
@@ -233,16 +221,6 @@ class CameraNode:
                 self.pub_area.publish(max_area_red)
             except CvBridgeError as e:
                 rospy.logwarn(e)
-            #print("area blue : ", max_area_blue)
-            #print("distance : ", self.dist_us)
-            #print("Ratio distance/areas : ", np.sqrt(max_area_red)/(self.dist_us))
-            """
-            if (max_area_red)/(self.dist_us) > 7:
-                print("Gros carton rouge !")
-            else :
-                print("Petit carton rouge !")
-            """
-            #print("Ratio distance/area : ", area_distance_ratio(self, self.dist_us, max_area_blue))
             img_draw = self.draw_contours(img_draw, red_contours, max_red_contour)
             self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_red_contour)
             print(self.shape)
