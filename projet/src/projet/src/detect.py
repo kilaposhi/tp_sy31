@@ -54,7 +54,7 @@ class CameraNode:
         return hsv
 
     def check_area(self, max_area):
-        AREA_MINIMUM = 30000 
+        AREA_MINIMUM = 35000 
         if (max_area < AREA_MINIMUM):
             return False
         return True
@@ -190,15 +190,14 @@ class CameraNode:
         upper_red_hsv = (358, 100, 95)
         red_boundaries_hsv = (self.hsv_to_cv_hsv(lower_red_hsv), self.hsv_to_cv_hsv(upper_red_hsv))
     
-        lower_white_hsv = (70,  5  ,45 )
+        lower_white_hsv = (70, 5, 45)
         upper_white_hsv = (209, 64, 95)
         white_boundaries_hsv = (self.hsv_to_cv_hsv(lower_white_hsv), self.hsv_to_cv_hsv(upper_white_hsv))
 
-    
         max_area_blue, blue_contours, max_blue_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, blue_boundaries_hsv))
         max_area_red, red_contours, max_red_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, red_boundaries_hsv))
-        # max_area_white, white_contours, max_white_id = compute_max_area(img_bgr_blurred, lower_white_hsv, upper_white_hsv)
-        
+        max_area_white, white_contours, max_white_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, white_boundaries_hsv))
+
         img_draw = img_bgr
 
         # canny_output, img_blur = self.filter_Canny(img_bgr)
@@ -249,11 +248,25 @@ class CameraNode:
             print(self.shape)
             self.pub_shape.publish(shape_string)
 
+        elif self.check_area(max_area_white):
+            self.color = Color.WHITE
+            print(max_area_white)
+            print("The object is White!")
+            try:
+                self.pub_color.publish("W")
+                self.pub_area.publish(max_area_white)
+            except CvBridgeError as e:
+                rospy.logwarn(e)
+            img_draw = self.draw_contours(img_draw, white_contours, max_white_contour )
+            self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_white_contour)
+            print(self.shape)
+            self.pub_shape.publish(shape_string)
+
         else:
             self.color = Color.NONE
             print("No color detected !")
             self.pub_color.publish("None")
-            self.pub_area.publish(O)
+            self.pub_area.publish(Int32(0))
             self.pub_shape.publish("None")
 
 
