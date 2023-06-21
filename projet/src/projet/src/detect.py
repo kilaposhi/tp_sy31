@@ -187,8 +187,8 @@ class CameraNode:
         upper_red_hsv = (358, 100, 95)
         red_boundaries_hsv = (self.hsv_to_cv_hsv(lower_red_hsv), self.hsv_to_cv_hsv(upper_red_hsv))
     
-        lower_white_hsv = (70, 5, 45)
-        upper_white_hsv = (209, 64, 95)
+        lower_white_hsv = (64, 0, 45)
+        upper_white_hsv = (216, 83, 95)
         white_boundaries_hsv = (self.hsv_to_cv_hsv(lower_white_hsv), self.hsv_to_cv_hsv(upper_white_hsv))
 
         max_area_blue, blue_contours, max_blue_contour = self.compute_max_area(self.filter_HSV(img_bgr_blurred, blue_boundaries_hsv))

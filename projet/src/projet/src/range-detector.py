@@ -19,12 +19,16 @@ def callback(value):
 
 def setup_trackbars(range_filter):
     cv2.namedWindow("Trackbars", 0)
-
+        
     for i in ["MIN", "MAX"]:
-        v = 0 if i == "MIN" else 255
-
+        max = 100
+        v = 0 if i == "MIN" else max
         for j in range_filter:
-            cv2.createTrackbar("%s_%s" % (j, i), "Trackbars", v, 255, callback)
+            if j == 'H' :
+                max = 360
+                if i == "MAX" : v = 360
+            
+            cv2.createTrackbar("%s_%s" % (j, i), "Trackbars", v, max, callback)
 
 
 def get_arguments():
@@ -59,6 +63,10 @@ def get_trackbar_values(range_filter):
 
     return values
 
+def hsv_to_cv_hsv(hsv):
+    hue, saturation, value = hsv 
+    hsv = (hue/2, saturation*2.55, value*2.55) 
+    return hsv
 
 def main():
     args = get_arguments()
@@ -91,7 +99,7 @@ def main():
 
         v1_min, v2_min, v3_min, v1_max, v2_max, v3_max = get_trackbar_values(range_filter)
 
-        thresh = cv2.inRange(frame_to_thresh, (v1_min, v2_min, v3_min), (v1_max, v2_max, v3_max))
+        thresh = cv2.inRange(frame_to_thresh, hsv_to_cv_hsv((v1_min, v2_min, v3_min)), hsv_to_cv_hsv((v1_max, v2_max, v3_max)))
 
         if args['preview']:
             preview = cv2.bitwise_and(image, image, mask=thresh)
