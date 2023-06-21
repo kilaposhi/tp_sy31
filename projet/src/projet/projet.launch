@@ -12,7 +12,8 @@
 
 
     <node name="detect" pkg="projet" type="detect.py" />
-    <node name="objectDetector" pkg="projet" type="projet.py" />
-    <node name="lidar" pkg="projet" type="reflexion_exp.py" />
+    <node name="LaserScan_to_points" pkg="projet" type="zone_to_detect.py" />
+    <node name="projetDetector" pkg="projet" type="projet.py" />
+   	<node name="clusterer" pkg="projet" type="reflexion_exp.py" />
 
 </launch>

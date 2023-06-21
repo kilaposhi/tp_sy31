@@ -40,9 +40,9 @@ class CameraNode:
 
         # Publisher to the output topics.
         self.pub_img = rospy.Publisher('~output', Image, queue_size=10)
-        self.pub_color = rospy.Publisher('/color', String, queue_size=10)
-        self.pub_area = rospy.Publisher('/area', Int32, queue_size=10)
-        self.pub_shape = rospy.Publisher('/shape', String, queue_size=10)
+        self.pub_color = rospy.Publisher('~color', String, queue_size=10)
+        self.pub_area = rospy.Publisher('~area', Int32, queue_size=10)
+        self.pub_shape = rospy.Publisher('~shape', String, queue_size=10)
 
         # Subscriber to the input topic. self.callback is called when a message is received
         self.subscriber = rospy.Subscriber('/camera/image_color', Image, self.callback)
@@ -204,48 +204,47 @@ class CameraNode:
             self.color = Color.BLUE
             print("The object is Blue!")
             try:
-                self.pub_color.publish("B")
-                self.pub_area.publish(max_area_blue)
+                self.pub_color.publish(String("B"))
+                self.pub_area.publish(Int32(int(max_area_blue)))
             except CvBridgeError as e:
                 rospy.logwarn(e)
             img_draw = self.draw_contours(img_draw, blue_contours, max_blue_contour)
             self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_blue_contour)
             print(self.shape)
-            self.pub_shape.publish(shape_string)
+            self.pub_shape.publish(String(shape_string))
 
         elif self.check_area(max_area_red):
             self.color = Color.RED
             print("The object is Red!")
             try:
-                self.pub_color.publish("R")
-                self.pub_area.publish(max_area_red)
+                self.pub_color.publish(String("R"))
+                self.pub_area.publish(Int32(int(max_area_red)))
             except CvBridgeError as e:
                 rospy.logwarn(e)
             img_draw = self.draw_contours(img_draw, red_contours, max_red_contour)
             self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_red_contour)
             print(self.shape)
-            self.pub_shape.publish(shape_string)
+            self.pub_shape.publish(String(shape_string))
 
         elif self.check_area(max_area_white):
             self.color = Color.WHITE
-            print(max_area_white)
             print("The object is White!")
             try:
-                self.pub_color.publish("W")
-                self.pub_area.publish(max_area_white)
+                self.pub_color.publish(String("W"))
+                self.pub_area.publish(Int32(int(max_area_white)))
             except CvBridgeError as e:
                 rospy.logwarn(e)
             img_draw = self.draw_contours(img_draw, white_contours, max_white_contour )
             self.shape, img_draw, shape_string = self.detect_forms_area(img_draw, max_white_contour)
             print(self.shape)
-            self.pub_shape.publish(shape_string)
+            self.pub_shape.publish(String(shape_string))
 
         else:
             self.color = Color.NONE
             print("No color detected !")
-            self.pub_color.publish("None")
+            self.pub_color.publish(String("None"))
             self.pub_area.publish(Int32(0))
-            self.pub_shape.publish("None")
+            self.pub_shape.publish(String("None"))
 
 
     
